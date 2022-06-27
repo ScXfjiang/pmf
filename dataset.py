@@ -1,5 +1,6 @@
-import torch
 import os
+
+import torch
 
 
 class MovieLens100K(torch.utils.data.Dataset):
@@ -17,9 +18,21 @@ class MovieLens100K(torch.utils.data.Dataset):
             u_info = f.readlines()
             self.num_user = int(u_info[0].split(" ")[0])
             self.num_item = int(u_info[1].split(" ")[0])
+        self.user_id2user_idx = {}
+        self.user_idx2user_id = {}
+        self.item_id2item_idx = {}
+        self.item_idx2item_id = {}
+        for idx, tup in enumerate(self.structured_data):
+            self.user_id2user_idx[tup[0]] = idx
+            self.user_idx2user_id[idx] = tup[0]
+            self.item_id2item_idx[tup[1]] = idx
+            self.item_idx2item_id[idx] = tup[1]
 
     def __getitem__(self, idx):
-        return self.structured_data[idx]
+        user_idx = self.user_id2user_idx[self.structured_data[idx][0]]
+        item_idx = self.item_id2item_idx[self.structured_data[idx][1]]
+        rating = self.structured_data[idx][2]
+        return [user_idx, item_idx, rating]
 
     def __len__(self):
         return len(self.structured_data)
