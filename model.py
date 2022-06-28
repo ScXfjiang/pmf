@@ -24,3 +24,6 @@ class ProbabilisticMatrixFactorization(nn.Module):
         item_embeds = torch.index_select(self.w_item, 0, item_indices)
         estimate_ratings = torch.sum(user_embeds * item_embeds, dim=-1)
         return estimate_ratings
+
+    def __call__(self, *args):
+        return self.forward(*args)
