@@ -17,8 +17,8 @@ class ProbabilisticMatrixFactorization(nn.Module):
         nn.init.normal_(self.w_user)
         nn.init.normal_(self.w_item)
 
-    def forward(self, user_indices, item_indices):
-        user_embeds = self.w_user[user_indices]
-        item_embeds = self.w_item[item_indices]
-        estimate_ratings = user_embeds * item_embeds
+    def forward(self, uesr_indices, item_indices):
+        user_embeds = torch.index_select(self.w_user, 0, uesr_indices)
+        item_embeds = torch.index_select(self.w_item, 0, item_indices)
+        estimate_ratings = torch.sum(user_embeds * item_embeds, dim=-1)
         return estimate_ratings

@@ -13,24 +13,15 @@ class MovieLens100K(torch.utils.data.Dataset):
         with open(os.path.join(dataset_path, "u.data")) as f:
             for line in f:
                 (user_id, item_id, rating, _) = line.split("\t")
-                self.structured_data.append([int(user_id), int(item_id), float(rating)])
+                self.structured_data.append([int(user_id), int(item_id), int(rating)])
         with open(os.path.join(dataset_path, "u.info")) as f:
             u_info = f.readlines()
             self.num_user = int(u_info[0].split(" ")[0])
             self.num_item = int(u_info[1].split(" ")[0])
-        self.user_id2user_idx = {}
-        self.user_idx2user_id = {}
-        self.item_id2item_idx = {}
-        self.item_idx2item_id = {}
-        for idx, tup in enumerate(self.structured_data):
-            self.user_id2user_idx[tup[0]] = idx
-            self.user_idx2user_id[idx] = tup[0]
-            self.item_id2item_idx[tup[1]] = idx
-            self.item_idx2item_id[idx] = tup[1]
 
     def __getitem__(self, idx):
-        user_idx = self.user_id2user_idx[self.structured_data[idx][0]]
-        item_idx = self.item_id2item_idx[self.structured_data[idx][1]]
+        user_idx = self.structured_data[idx][0] - 1
+        item_idx = self.structured_data[idx][1] - 1
         rating = self.structured_data[idx][2]
         return [user_idx, item_idx, rating]
 

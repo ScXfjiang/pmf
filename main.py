@@ -11,10 +11,10 @@ def train(model, train_loader, optimizer):
     for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(train_loader):
         user_indices = user_indices.to(torch.device("cpu"))
         item_indices = item_indices.to(torch.device("cpu"))
-        gt_ratings = gt_ratings.to(torch.device("cpu"))
+        gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
         optimizer.zero_grad()
         estimate_ratings = model(user_indices, item_indices)
-        loss = torch.nn.functional.mes_loss(estimate_ratings, gt_ratings)
+        loss = torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
         loss.backward()
         optimizer.step()
 
@@ -65,6 +65,7 @@ def main():
     for epoch in range(1, args.num_epoch + 1):
         train(model, train_loader, optimizer)
         test(model, test_loader)
+        print(epoch)
 
 
 if __name__ == "__main__":
