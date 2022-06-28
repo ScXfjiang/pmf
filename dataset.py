@@ -3,12 +3,30 @@ import os
 import torch
 
 
-class MovieLens100K(torch.utils.data.Dataset):
+class DatasetInterface(torch.utils.data.Dataset):
+    def __init__(self):
+        super(DatasetInterface, self).__init__()
+
+    def __getitem__(self, idx):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
+
+    def get_num_user(self):
+        raise NotImplementedError
+
+    def get_num_item(self):
+        raise NotImplementedError
+
+
+class MovieLens100K(DatasetInterface):
     """
     # https://grouplens.org/datasets/movielens/
     """
 
     def __init__(self, dataset_path):
+        super(MovieLens100K, self).__init__()
         self.structured_data = []
         with open(os.path.join(dataset_path, "u.data")) as f:
             for line in f:
@@ -33,6 +51,10 @@ class MovieLens100K(torch.utils.data.Dataset):
 
     def get_num_item(self):
         return self.num_item
+
+
+class Yelp(torch.utils.data.Dataset):
+    pass
 
 
 if __name__ == "__main__":
