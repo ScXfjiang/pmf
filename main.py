@@ -69,7 +69,7 @@ def main():
     parser.add_argument("--train_batch_size", type=int, default=1024)
     parser.add_argument("--test_batch_size", type=int, default=1024)
     parser.add_argument("--shuffle", type=bool, default=False)
-    parser.add_argument("--num_epoch", type=int, default=100)
+    parser.add_argument("--num_epoch", type=int, default=500)
     parser.add_argument("--lr", type=float, default=1.0)
     parser.add_argument("--latent_dim", type=int, default=20)
     args = parser.parse_args()
