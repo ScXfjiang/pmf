@@ -28,6 +28,7 @@ class Trainer(object):
 
     def train_epoch(self):
         self.model.train()
+        cur_losses = []
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.train_loader
         ):
@@ -36,16 +37,16 @@ class Trainer(object):
             gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             self.optimizer.zero_grad()
             estimate_ratings = self.model(user_indices, item_indices)
-            loss = torch.sqrt(
-                torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
-            )
-            if batch_idx % 100 == 0:
-                self.train_loss_list.append(loss.cpu().detach().numpy())
+            loss = torch.sqrt(torch.nn.functional.mse_loss(estimate_ratings, gt_ratings))
+            cur_losses.append(loss)
             loss.backward()
             self.optimizer.step()
+        self.train_loss_list.append(float(sum(cur_losses) / len(cur_losses)))
+
 
     def test_epoch(self):
         self.model.eval()
+        cur_losses = []
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.test_loader
         ):
@@ -56,8 +57,8 @@ class Trainer(object):
             loss = torch.sqrt(
                 torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
             )
-            if batch_idx % 100 == 0:
-                self.test_loss_list.append(loss.cpu().detach().numpy())
+            cur_losses.append(loss)
+        self.test_loss_list.append(float(sum(cur_losses) / len(cur_losses)))
 
 
 def main():
@@ -68,8 +69,8 @@ def main():
     parser.add_argument("--train_batch_size", type=int, default=1024)
     parser.add_argument("--test_batch_size", type=int, default=1024)
     parser.add_argument("--shuffle", type=bool, default=False)
-    parser.add_argument("--num_epoch", type=int, default=10)
-    parser.add_argument("--lr", type=float, default=0.1)
+    parser.add_argument("--num_epoch", type=int, default=100)
+    parser.add_argument("--lr", type=float, default=1.0)
     parser.add_argument("--latent_dim", type=int, default=20)
     args = parser.parse_args()
 
