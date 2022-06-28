@@ -9,18 +9,34 @@ from model import ProbabilisticMatrixFactorization
 def train(model, train_loader, optimizer):
     model.train()
     for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(train_loader):
-        user_indices = user_indices.to(torch.device("cpu"))
-        item_indices = item_indices.to(torch.device("cpu"))
+        user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
+        item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
         gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
         optimizer.zero_grad()
         estimate_ratings = model(user_indices, item_indices)
-        loss = torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
+        loss = torch.sqrt(
+            torch.nn.functional.mse_loss(
+                estimate_ratings, gt_ratings - torch.mean(gt_ratings)
+            )
+        )
+        print(loss)
         loss.backward()
         optimizer.step()
 
 
 def test(model, test_loader):
-    pass
+    model.eval()
+    with torch.no_grad():
+        for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(test_loader):
+            user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
+            item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
+            gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
+            estimate_ratings = model(user_indices, item_indices)
+            loss = torch.sqrt(
+                torch.nn.functional.mse_loss(
+                    estimate_ratings, gt_ratings - torch.mean(gt_ratings)
+                )
+            )
 
 
 def main():
@@ -28,13 +44,11 @@ def main():
     parser.add_argument(
         "--dataset", type=str, default="/Users/xfjiang/workspace/dataset/ml-100k"
     )
-    parser.add_argument("--train_batch_size", type=int, default="512")
-    parser.add_argument("--test_batch_size", type=int, default="512")
+    parser.add_argument("--train_batch_size", type=int, default="1000")
+    parser.add_argument("--test_batch_size", type=int, default="1000")
     parser.add_argument("--shuffle", type=bool, default=True)
-    parser.add_argument("--num_epoch", type=int, default=14)
-    parser.add_argument("--lr", type=float, default=1.0)
-    parser.add_argument("--momentum", type=float, default=0.8)
-    parser.add_argument("--l2", type=float, default=0.1)
+    parser.add_argument("--num_epoch", type=int, default=1000)
+    parser.add_argument("--lr", type=float, default=0.1)
     parser.add_argument("--hidden_dim", type=int, default="10")
     args = parser.parse_args()
 
@@ -59,13 +73,10 @@ def main():
     model = ProbabilisticMatrixFactorization(
         ml_100k.get_num_user(), ml_100k.get_num_item(), args.hidden_dim
     )
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.l2
-    )
-    for epoch in range(1, args.num_epoch + 1):
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr)
+    for _ in range(1, args.num_epoch + 1):
         train(model, train_loader, optimizer)
         test(model, test_loader)
-        print(epoch)
 
 
 if __name__ == "__main__":
