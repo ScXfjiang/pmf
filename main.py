@@ -37,9 +37,7 @@ class Trainer(object):
             self.optimizer.zero_grad()
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
-                torch.nn.functional.mse_loss(
-                    estimate_ratings, gt_ratings - torch.mean(gt_ratings)
-                )
+                torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
             )
             if batch_idx % 100 == 0:
                 self.train_loss_list.append(loss.cpu().detach().numpy())
@@ -56,9 +54,7 @@ class Trainer(object):
             gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
-                torch.nn.functional.mse_loss(
-                    estimate_ratings, gt_ratings - torch.mean(gt_ratings)
-                )
+                torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
             )
             if batch_idx % 100 == 0:
                 self.test_loss_list.append(loss.cpu().detach().numpy())
@@ -72,9 +68,9 @@ def main():
     parser.add_argument("--train_batch_size", type=int, default=1000)
     parser.add_argument("--test_batch_size", type=int, default=1000)
     parser.add_argument("--shuffle", type=bool, default=True)
-    parser.add_argument("--num_epoch", type=int, default=50)
+    parser.add_argument("--num_epoch", type=int, default=100)
     parser.add_argument("--lr", type=float, default=0.1)
-    parser.add_argument("--latent_dim", type=int, default=10)
+    parser.add_argument("--latent_dim", type=int, default=20)
     args = parser.parse_args()
 
     ml_100k = MovieLens100K(args.dataset)
