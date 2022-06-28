@@ -3,13 +3,13 @@ import torch.nn as nn
 
 
 class ProbabilisticMatrixFactorization(nn.Module):
-    def __init__(self, num_user, num_item, hidden_dim):
+    def __init__(self, num_user, num_item, latent_dim):
         super(ProbabilisticMatrixFactorization, self).__init__()
         self.w_user = nn.parameter.Parameter(
-            torch.empty((num_user, hidden_dim), device=torch.device("cpu"))
+            torch.empty((num_user, latent_dim), device=torch.device("cpu"))
         )
         self.w_item = nn.parameter.Parameter(
-            torch.empty((num_item, hidden_dim), device=torch.device("cpu"))
+            torch.empty((num_item, latent_dim), device=torch.device("cpu"))
         )
         self.init_weight()
 
