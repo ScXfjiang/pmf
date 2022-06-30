@@ -2,6 +2,7 @@ import os
 import re
 
 import torch
+import json
 
 
 class DatasetInterface(torch.utils.data.Dataset):
@@ -66,7 +67,7 @@ class NetflixPrize(DatasetInterface):
         movie_id = 0
         for i in range(1, num_file + 1):
             with open(
-                    os.path.join(dataset_path, "combined_data_{}.txt".format(i))
+                os.path.join(dataset_path, "combined_data_{}.txt".format(i))
             ) as f:
                 for line in f:
                     line = line.strip()
@@ -105,7 +106,58 @@ class NetflixPrize(DatasetInterface):
 
 
 class Yelp(DatasetInterface):
-    pass
+    def __init__(self, dataset_path):
+        super(Yelp, self).__init__()
+        self.user_json_list = [
+            json.loads(line)
+            for line in open(
+                os.path.join(dataset_path, "yelp_academic_dataset_user.json")
+            )
+        ]  # num of user == 1987897
+        self.business_json_list = [
+            json.loads(line)
+            for line in open(
+                os.path.join(dataset_path, "yelp_academic_dataset_business.json")
+            )
+        ]  # num of business == 150346
+        self.review_json_list = [
+            json.loads(line)
+            for line in open(
+                os.path.join(dataset_path, "yelp_academic_dataset_review.json")
+            )
+        ]  # num of review == 6990280
+        self.user_id2user_idx = {
+            user_json["user_id"]: user_idx
+            for user_idx, user_json in enumerate(self.user_json_list)
+        }
+        self.user_idx2user_id = {
+            user_idx: user_json["user_id"]
+            for user_idx, user_json in enumerate(self.user_json_list)
+        }
+        self.business_id2business_idx = {
+            user_json["business_id"]: business_idx
+            for business_idx, user_json in enumerate(self.business_json_list)
+        }
+        self.business_idx2business_id = {
+            business_idx: user_json["business_id"]
+            for business_idx, user_json in enumerate(self.business_json_list)
+        }
+
+    def __getitem__(self, idx):
+        review_json = self.review_json_list[idx]
+        user_idx = self.user_id2user_idx[review_json["user_id"]]
+        business_idx = self.business_id2business_idx[review_json["business_id"]]
+        rating = review_json["stars"]
+        return (user_idx, business_idx, rating)
+
+    def __len__(self):
+        return len(self.review_json_list)
+
+    def get_num_user(self):
+        return len(self.user_json_list)
+
+    def get_num_item(self):
+        return len(self.business_json_list)
 
 
 if __name__ == "__main__":
@@ -116,7 +168,13 @@ if __name__ == "__main__":
     # print("num items: {}".format(ml_100k.get_num_item()))
 
     # Netflix Prize
-    netflix_prize = NetflixPrize("/Users/xfjiang/workspace/dataset/netflix_prize")
-    print(len(netflix_prize))
-    print(netflix_prize.get_num_user())
-    print(netflix_prize.get_num_item())
+    # netflix_prize = NetflixPrize("/Users/xfjiang/workspace/dataset/netflix_prize")
+    # print(len(netflix_prize))
+    # print(netflix_prize.get_num_user())
+    # print(netflix_prize.get_num_item())
+
+    # Yelp
+    yelp = Yelp("/home/people/22200056/workspace/dataset/yelp_dataset")
+    print(len(yelp))
+    print(yelp.get_num_user())
+    print(yelp.get_num_item())
