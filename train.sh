@@ -1,5 +1,5 @@
-python main.py \
-    --dataset="/home/people/22200056/workspace/dataset/yelp_dataset"    \
+python main.py                                                          \
+    --dataset="/dataset/ml-100k"	    	                            \
     --train_batch_size=1024                                             \
     --test_batch_size=1024                                              \
     --shuffle=True                                                      \

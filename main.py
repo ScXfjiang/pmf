@@ -2,11 +2,13 @@ import argparse
 
 import matplotlib.pyplot as plt
 import torch
+import time
 
 from dataset import MovieLens100K
 from dataset import NetflixPrize
 from dataset import Yelp
 from model import ProbabilisticMatrixFactorization
+from util import show_elapsed_time
 
 
 class Trainer(object):
@@ -77,7 +79,13 @@ def main():
     parser.add_argument("--latent_dim", type=int, default=20)
     args = parser.parse_args()
 
-    dataset = Yelp(args.dataset)
+    print("Dataset initialization starts")
+    dataset_init_start = time.time()
+    dataset = MovieLens100K(args.dataset)
+    dataset_init_end = time.time()
+    show_elapsed_time(dataset_init_start, dataset_init_end)
+    print("Dataset initialization ends")
+
     train_set_size = int(len(dataset) * 0.8)
     test_set_size = len(dataset) - train_set_size
     train_set, test_set = torch.utils.data.random_split(

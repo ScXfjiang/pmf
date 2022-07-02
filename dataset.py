@@ -4,7 +4,6 @@ import re
 import torch
 import json
 import pickle as pkl
-import time
 
 
 class DatasetInterface(torch.utils.data.Dataset):
@@ -111,12 +110,9 @@ class Yelp(DatasetInterface):
     """
     https://www.yelp.com/dataset/documentation/main/
     """
+
     def __init__(self, dataset_path):
-        print("Dataset initialization starts")
-        dataset_init_start = time.time()
-
         super(Yelp, self).__init__()
-
         cache_dir = os.path.join(os.getcwd(), "cache")
         if os.path.exists(cache_dir):
             print("Initialize dataset from cache")
@@ -191,19 +187,6 @@ class Yelp(DatasetInterface):
                 os.path.join(cache_dir, "business_idx2business_id.pkl"), "wb"
             ) as f:
                 pkl.dump(self.business_idx2business_id, f)
-
-        dataset_init_end = time.time()
-        second = int(dataset_init_end - dataset_init_start)
-        hour = second // 3600
-        second = second - hour * 3600
-        min = second // 60
-        second = second - min * 60
-        print(
-            "Dataset initialization elapsed time: {} hours {} mins {} seconds".format(
-                hour, min, second
-            )
-        )
-        print("Dataset initialization ends")
 
     def __getitem__(self, idx):
         review_json = self.review_json_list[idx]
