@@ -26,7 +26,7 @@ class DatasetInterface(torch.utils.data.Dataset):
 
 class MovieLens100K(DatasetInterface):
     """
-    # https://grouplens.org/datasets/movielens/
+    https://grouplens.org/datasets/movielens/
     """
 
     def __init__(self, dataset_path):
@@ -108,6 +108,9 @@ class NetflixPrize(DatasetInterface):
 
 
 class Yelp(DatasetInterface):
+    """
+    https://www.yelp.com/dataset/documentation/main/
+    """
     def __init__(self, dataset_path):
         print("Dataset initialization starts")
         dataset_init_start = time.time()
