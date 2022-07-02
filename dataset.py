@@ -207,14 +207,13 @@ class Yelp(DatasetInterface):
         user_idx = self.user_id2user_idx[review_json["user_id"]]
         business_idx = self.business_id2business_idx[review_json["business_id"]]
         rating = review_json["stars"]
-        print("ok")
         return (user_idx, business_idx, rating)
 
     def __len__(self):
         return len(self.review_json_list)
 
     def get_num_user(self):
-        return len(self.user_json_list)
+        return len(self.user_ids)
 
     def get_num_item(self):
-        return len(self.business_json_list)
+        return len(self.business_ids)
