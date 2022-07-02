@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 import torch
 
 from dataset import MovieLens100K
+from dataset import NetflixPrize
+from dataset import Yelp
 from model import ProbabilisticMatrixFactorization
+from util import time_convert
 
 
 class Trainer(object):
@@ -18,8 +21,10 @@ class Trainer(object):
         self.test_loss_list = []
 
     def train(self):
-        for _ in range(self.num_epoch):
+        for epoch_idx in range(1, self.num_epoch + 1):
+            print("train epoch {}".format(epoch_idx))
             self.train_epoch()
+            print("test epoch {}".format(epoch_idx))
             self.test_epoch()
         plt.plot(self.train_loss_list)
         plt.show()
@@ -37,12 +42,13 @@ class Trainer(object):
             gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             self.optimizer.zero_grad()
             estimate_ratings = self.model(user_indices, item_indices)
-            loss = torch.sqrt(torch.nn.functional.mse_loss(estimate_ratings, gt_ratings))
+            loss = torch.sqrt(
+                torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
+            )
             cur_losses.append(loss)
             loss.backward()
             self.optimizer.step()
         self.train_loss_list.append(float(sum(cur_losses) / len(cur_losses)))
-
 
     def test_epoch(self):
         self.model.eval()
@@ -63,9 +69,7 @@ class Trainer(object):
 
 def main():
     parser = argparse.ArgumentParser(description="Probabilistic Matrix Factorization")
-    parser.add_argument(
-        "--dataset", type=str, default="/Users/xfjiang/workspace/dataset/ml-100k"
-    )
+    parser.add_argument("--dataset", type=str, default="")
     parser.add_argument("--train_batch_size", type=int, default=1024)
     parser.add_argument("--test_batch_size", type=int, default=1024)
     parser.add_argument("--shuffle", type=bool, default=True)
@@ -74,11 +78,11 @@ def main():
     parser.add_argument("--latent_dim", type=int, default=20)
     args = parser.parse_args()
 
-    ml_100k = MovieLens100K(args.dataset)
-    train_set_size = int(len(ml_100k) * 0.8)
-    test_set_size = len(ml_100k) - train_set_size
+    dataset = Yelp(args.dataset)
+    train_set_size = int(len(dataset) * 0.8)
+    test_set_size = len(dataset) - train_set_size
     train_set, test_set = torch.utils.data.random_split(
-        ml_100k, [train_set_size, test_set_size]
+        dataset, [train_set_size, test_set_size]
     )
     train_loader = torch.utils.data.DataLoader(
         dataset=train_set,
@@ -93,7 +97,7 @@ def main():
         drop_last=True,
     )
     model = ProbabilisticMatrixFactorization(
-        ml_100k.get_num_user(), ml_100k.get_num_item(), args.latent_dim
+        dataset.get_num_user(), dataset.get_num_item(), args.latent_dim
     )
     for param in model.parameters():
         print(type(param.data), param.size())

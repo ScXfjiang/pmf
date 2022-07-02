@@ -3,6 +3,8 @@ import re
 
 import torch
 import json
+import pickle as pkl
+import time
 
 
 class DatasetInterface(torch.utils.data.Dataset):
@@ -107,41 +109,98 @@ class NetflixPrize(DatasetInterface):
 
 class Yelp(DatasetInterface):
     def __init__(self, dataset_path):
+        print("Dataset initialization starts")
+        dataset_init_start = time.time()
         super(Yelp, self).__init__()
-        self.user_json_list = [
-            json.loads(line)
-            for line in open(
-                os.path.join(dataset_path, "yelp_academic_dataset_user.json")
+        cache_dir = os.path.join(os.getcwd(), "cache")
+        if os.path.exists(cache_dir):
+            print("Initialize dataset from cache")
+            with open(os.path.join(cache_dir, "user_json_list.pkl"), "rb") as f:
+                self.user_json_list = pkl.load(f)
+            with open(os.path.join(cache_dir, "business_json_list.pkl"), "rb") as f:
+                self.business_json_list = pkl.load(f)
+            with open(os.path.join(cache_dir, "review_json_list.pkl"), "rb") as f:
+                self.review_json_list = pkl.load(f)
+            with open(os.path.join(cache_dir, "user_id2user_idx.pkl"), "rb") as f:
+                self.user_id2user_idx = pkl.load(f)
+            with open(os.path.join(cache_dir, "user_idx2user_id.pkl"), "rb") as f:
+                self.user_idx2user_id = pkl.load(f)
+            with open(
+                os.path.join(cache_dir, "business_id2business_idx.pkl"), "rb"
+            ) as f:
+                self.business_id2business_idx = pkl.load(f)
+            with open(
+                os.path.join(cache_dir, "business_idx2business_id.pkl"), "rb"
+            ) as f:
+                self.business_idx2business_id = pkl.load(f)
+        else:
+            print("Initialize dataset from raw data")
+            os.mkdir(cache_dir)
+            self.user_json_list = [
+                json.loads(line)
+                for line in open(
+                    os.path.join(dataset_path, "yelp_academic_dataset_user.json")
+                )
+            ]  # num of user == 1987897
+            self.business_json_list = [
+                json.loads(line)
+                for line in open(
+                    os.path.join(dataset_path, "yelp_academic_dataset_business.json")
+                )
+            ]  # num of business == 150346
+            self.review_json_list = [
+                json.loads(line)
+                for line in open(
+                    os.path.join(dataset_path, "yelp_academic_dataset_review.json")
+                )
+            ]  # num of review == 6990280
+            self.user_id2user_idx = {
+                user_json["user_id"]: user_idx
+                for user_idx, user_json in enumerate(self.user_json_list)
+            }
+            self.user_idx2user_id = {
+                user_idx: user_json["user_id"]
+                for user_idx, user_json in enumerate(self.user_json_list)
+            }
+            self.business_id2business_idx = {
+                user_json["business_id"]: business_idx
+                for business_idx, user_json in enumerate(self.business_json_list)
+            }
+            self.business_idx2business_id = {
+                business_idx: user_json["business_id"]
+                for business_idx, user_json in enumerate(self.business_json_list)
+            }
+
+            with open(os.path.join(cache_dir, "user_json_list.pkl"), "wb") as f:
+                pkl.dump(self.user_json_list, f)
+            with open(os.path.join(cache_dir, "business_json_list.pkl"), "wb") as f:
+                pkl.dump(self.business_json_list, f)
+            with open(os.path.join(cache_dir, "review_json_list.pkl"), "wb") as f:
+                pkl.dump(self.review_json_list, f)
+            with open(os.path.join(cache_dir, "user_id2user_idx.pkl"), "wb") as f:
+                pkl.dump(self.user_id2user_idx, f)
+            with open(os.path.join(cache_dir, "user_idx2user_id.pkl"), "wb") as f:
+                pkl.dump(self.user_idx2user_id, f)
+            with open(
+                os.path.join(cache_dir, "business_id2business_idx.pkl"), "wb"
+            ) as f:
+                pkl.dump(self.business_id2business_idx, f)
+            with open(
+                os.path.join(cache_dir, "business_idx2business_id.pkl"), "wb"
+            ) as f:
+                pkl.dump(self.business_idx2business_id, f)
+        dataset_init_end = time.time()
+        print("Dataset initialization ends")
+        second = int(dataset_init_end - dataset_init_start)
+        hour = second // 3600
+        second = second - hour * 3600
+        min = second // 60
+        second = second - min * 60
+        print(
+            "Dataset initialization elapsed time: {} hours {} mins {} seconds".format(
+                hour, min, second
             )
-        ]  # num of user == 1987897
-        self.business_json_list = [
-            json.loads(line)
-            for line in open(
-                os.path.join(dataset_path, "yelp_academic_dataset_business.json")
-            )
-        ]  # num of business == 150346
-        self.review_json_list = [
-            json.loads(line)
-            for line in open(
-                os.path.join(dataset_path, "yelp_academic_dataset_review.json")
-            )
-        ]  # num of review == 6990280
-        self.user_id2user_idx = {
-            user_json["user_id"]: user_idx
-            for user_idx, user_json in enumerate(self.user_json_list)
-        }
-        self.user_idx2user_id = {
-            user_idx: user_json["user_id"]
-            for user_idx, user_json in enumerate(self.user_json_list)
-        }
-        self.business_id2business_idx = {
-            user_json["business_id"]: business_idx
-            for business_idx, user_json in enumerate(self.business_json_list)
-        }
-        self.business_idx2business_id = {
-            business_idx: user_json["business_id"]
-            for business_idx, user_json in enumerate(self.business_json_list)
-        }
+        )
 
     def __getitem__(self, idx):
         review_json = self.review_json_list[idx]
