@@ -6,4 +6,3 @@ python main.py \
     --num_epoch=500                                                     \
     --lr=1.0                                                            \
     --latent_dim=20
-
