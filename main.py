@@ -7,7 +7,6 @@ from dataset import MovieLens100K
 from dataset import NetflixPrize
 from dataset import Yelp
 from model import ProbabilisticMatrixFactorization
-from util import time_convert
 
 
 class Trainer(object):
@@ -99,8 +98,6 @@ def main():
     model = ProbabilisticMatrixFactorization(
         dataset.get_num_user(), dataset.get_num_item(), args.latent_dim
     )
-    for param in model.parameters():
-        print(type(param.data), param.size())
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr)
     trainer = Trainer(model, train_loader, args.num_epoch, optimizer, test_loader)
     trainer.train()

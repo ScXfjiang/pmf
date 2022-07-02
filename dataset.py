@@ -111,16 +111,18 @@ class Yelp(DatasetInterface):
     def __init__(self, dataset_path):
         print("Dataset initialization starts")
         dataset_init_start = time.time()
+
         super(Yelp, self).__init__()
+
         cache_dir = os.path.join(os.getcwd(), "cache")
         if os.path.exists(cache_dir):
             print("Initialize dataset from cache")
-            with open(os.path.join(cache_dir, "user_json_list.pkl"), "rb") as f:
-                self.user_json_list = pkl.load(f)
-            with open(os.path.join(cache_dir, "business_json_list.pkl"), "rb") as f:
-                self.business_json_list = pkl.load(f)
             with open(os.path.join(cache_dir, "review_json_list.pkl"), "rb") as f:
                 self.review_json_list = pkl.load(f)
+            with open(os.path.join(cache_dir, "user_ids.pkl"), "rb") as f:
+                self.user_ids = pkl.load(f)
+            with open(os.path.join(cache_dir, "business_ids.pkl"), "rb") as f:
+                self.business_ids = pkl.load(f)
             with open(os.path.join(cache_dir, "user_id2user_idx.pkl"), "rb") as f:
                 self.user_id2user_idx = pkl.load(f)
             with open(os.path.join(cache_dir, "user_idx2user_id.pkl"), "rb") as f:
@@ -134,49 +136,46 @@ class Yelp(DatasetInterface):
             ) as f:
                 self.business_idx2business_id = pkl.load(f)
         else:
+            # Some user_ids in review.json are not found in user.json.
+            # This issue doesn't happen to business_ids. To be consistent,
+            # I build data structures of both users and business from review.json.
             print("Initialize dataset from raw data")
             os.mkdir(cache_dir)
-            self.user_json_list = [
-                json.loads(line)
-                for line in open(
-                    os.path.join(dataset_path, "yelp_academic_dataset_user.json")
-                )
-            ]  # num of user == 1987897
-            self.business_json_list = [
-                json.loads(line)
-                for line in open(
-                    os.path.join(dataset_path, "yelp_academic_dataset_business.json")
-                )
-            ]  # num of business == 150346
-            self.review_json_list = [
-                json.loads(line)
-                for line in open(
-                    os.path.join(dataset_path, "yelp_academic_dataset_review.json")
-                )
-            ]  # num of review == 6990280
+            self.review_json_list = []
+            user_ids_set = set()
+            business_ids_set = set()
+            self.stars = []
+            with open(
+                os.path.join(dataset_path, "yelp_academic_dataset_review.json"), "rb"
+            ) as f:
+                for line in f:
+                    review_json = json.loads(line)
+                    self.review_json_list.append(review_json)
+                    self.stars.append(review_json["stars"])
+                    user_ids_set.add(review_json["user_id"])
+                    business_ids_set.add(review_json["business_id"])
+            self.user_ids = list(user_ids_set)
+            self.business_ids = list(business_ids_set)
             self.user_id2user_idx = {
-                user_json["user_id"]: user_idx
-                for user_idx, user_json in enumerate(self.user_json_list)
+                user_id: user_idx for user_idx, user_id in enumerate(self.user_ids)
             }
             self.user_idx2user_id = {
-                user_idx: user_json["user_id"]
-                for user_idx, user_json in enumerate(self.user_json_list)
+                user_idx: user_id for user_idx, user_id in enumerate(self.user_ids)
             }
             self.business_id2business_idx = {
-                user_json["business_id"]: business_idx
-                for business_idx, user_json in enumerate(self.business_json_list)
+                business_id: business_idx
+                for business_idx, business_id in enumerate(self.business_ids)
             }
             self.business_idx2business_id = {
-                business_idx: user_json["business_id"]
-                for business_idx, user_json in enumerate(self.business_json_list)
+                business_idx: business_id
+                for business_idx, business_id in enumerate(self.business_ids)
             }
-
-            with open(os.path.join(cache_dir, "user_json_list.pkl"), "wb") as f:
-                pkl.dump(self.user_json_list, f)
-            with open(os.path.join(cache_dir, "business_json_list.pkl"), "wb") as f:
-                pkl.dump(self.business_json_list, f)
             with open(os.path.join(cache_dir, "review_json_list.pkl"), "wb") as f:
                 pkl.dump(self.review_json_list, f)
+            with open(os.path.join(cache_dir, "user_ids.pkl"), "wb") as f:
+                pkl.dump(self.user_ids, f)
+            with open(os.path.join(cache_dir, "business_ids.pkl"), "wb") as f:
+                pkl.dump(self.business_ids, f)
             with open(os.path.join(cache_dir, "user_id2user_idx.pkl"), "wb") as f:
                 pkl.dump(self.user_id2user_idx, f)
             with open(os.path.join(cache_dir, "user_idx2user_id.pkl"), "wb") as f:
@@ -189,8 +188,8 @@ class Yelp(DatasetInterface):
                 os.path.join(cache_dir, "business_idx2business_id.pkl"), "wb"
             ) as f:
                 pkl.dump(self.business_idx2business_id, f)
+
         dataset_init_end = time.time()
-        print("Dataset initialization ends")
         second = int(dataset_init_end - dataset_init_start)
         hour = second // 3600
         second = second - hour * 3600
@@ -201,12 +200,14 @@ class Yelp(DatasetInterface):
                 hour, min, second
             )
         )
+        print("Dataset initialization ends")
 
     def __getitem__(self, idx):
         review_json = self.review_json_list[idx]
         user_idx = self.user_id2user_idx[review_json["user_id"]]
         business_idx = self.business_id2business_idx[review_json["business_id"]]
         rating = review_json["stars"]
+        print("ok")
         return (user_idx, business_idx, rating)
 
     def __len__(self):
@@ -217,23 +218,3 @@ class Yelp(DatasetInterface):
 
     def get_num_item(self):
         return len(self.business_json_list)
-
-
-if __name__ == "__main__":
-    # MovieLens100k
-    # ml_100k = MovieLens100K("/Users/xfjiang/workspace/dataset/ml-100k")
-    # print("num ratings: {}".format(len(ml_100k)))
-    # print("num users: {}".format(ml_100k.get_num_user()))
-    # print("num items: {}".format(ml_100k.get_num_item()))
-
-    # Netflix Prize
-    # netflix_prize = NetflixPrize("/Users/xfjiang/workspace/dataset/netflix_prize")
-    # print(len(netflix_prize))
-    # print(netflix_prize.get_num_user())
-    # print(netflix_prize.get_num_item())
-
-    # Yelp
-    yelp = Yelp("/home/people/22200056/workspace/dataset/yelp_dataset")
-    print(len(yelp))
-    print(yelp.get_num_user())
-    print(yelp.get_num_item())
