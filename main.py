@@ -24,13 +24,26 @@ class Trainer(object):
     def train(self):
         for epoch_idx in range(1, self.num_epoch + 1):
             print("train epoch {}".format(epoch_idx))
+            train_epoch_start = time.time()
             self.train_epoch()
+            train_epoch_end = time.time()
+            show_elapsed_time(
+                train_epoch_start, train_epoch_end, "Train epoch {}".format(epoch_idx)
+            )
             print("test epoch {}".format(epoch_idx))
+            test_epoch_start = time.time()
             self.test_epoch()
-        plt.plot(self.train_loss_list)
-        plt.show()
-        plt.plot(self.test_loss_list)
-        plt.show()
+            test_epoch_end = time.time()
+            show_elapsed_time(
+                test_epoch_start, test_epoch_end, "Test epoch {}".format(epoch_idx)
+            )
+
+        plt.plot(self.train_loss_list, label="train", linewidth=1)
+        plt.plot(self.test_loss_list, label="test", linewidth=1)
+        plt.xlabel("num of epoch")
+        plt.ylabel("RMSE")
+        plt.grid()
+        plt.savefig("rmse_curve.pdf")
 
     def train_epoch(self):
         self.model.train()
@@ -83,7 +96,7 @@ def main():
     dataset_init_start = time.time()
     dataset = MovieLens100K(args.dataset)
     dataset_init_end = time.time()
-    show_elapsed_time(dataset_init_start, dataset_init_end)
+    show_elapsed_time(dataset_init_start, dataset_init_end, "Dataset initialization")
     print("Dataset initialization ends")
 
     train_set_size = int(len(dataset) * 0.8)
