@@ -6,12 +6,10 @@ class ProbabilisticMatrixFactorization(nn.Module):
     def __init__(self, num_user, num_item, latent_dim):
         super(ProbabilisticMatrixFactorization, self).__init__()
         self.w_user = nn.parameter.Parameter(
-            torch.empty((num_user, latent_dim), device=torch.device("cpu")),
-            requires_grad=True,
+            torch.empty((num_user, latent_dim)), requires_grad=True,
         )
         self.w_item = nn.parameter.Parameter(
-            torch.empty((num_item, latent_dim), device=torch.device("cpu")),
-            requires_grad=True,
+            torch.empty((num_item, latent_dim)), requires_grad=True,
         )
         self.init_weight()
 

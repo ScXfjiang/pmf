@@ -58,10 +58,16 @@ class Trainer(object):
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.train_loader
         ):
+            if torch.cuda.is_available() and self.use_cuda:
+                user_indices = user_indices.to(device="cuda")
+                item_indices = item_indices.to(device="cuda")
+                gt_ratings = gt_ratings.to(device="cuda")
             self.optimizer.zero_grad()
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
-                torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
+                torch.nn.functional.mse_loss(
+                    estimate_ratings, gt_ratings.to(torch.float32)
+                )
             )
             cur_losses.append(loss)
             loss.backward()
@@ -78,9 +84,15 @@ class Trainer(object):
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.test_loader
         ):
+            if torch.cuda.is_available() and self.use_cuda:
+                user_indices = user_indices.to(device="cuda")
+                item_indices = item_indices.to(device="cuda")
+                gt_ratings = gt_ratings.to(device="cuda")
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
-                torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
+                torch.nn.functional.mse_loss(
+                    estimate_ratings, gt_ratings.to(torch.float32)
+                )
             )
             cur_losses.append(loss)
         self.test_loss_list.append(float(sum(cur_losses) / len(cur_losses)))
