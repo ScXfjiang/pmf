@@ -12,12 +12,15 @@ from util import show_elapsed_time
 
 
 class Trainer(object):
-    def __init__(self, model, train_loader, num_epoch, optimizer, test_loader):
+    def __init__(
+        self, model, train_loader, num_epoch, optimizer, test_loader, use_cuda
+    ):
         self.model = model
         self.train_loader = train_loader
         self.num_epoch = num_epoch
         self.optimizer = optimizer
         self.test_loader = test_loader
+        self.use_cuda = use_cuda
         self.train_loss_list = []
         self.test_loss_list = []
 
@@ -47,7 +50,7 @@ class Trainer(object):
 
     def train_epoch(self):
         self.model.train()
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and self.use_cuda:
             self.model.cuda()
         else:
             self.model.cpu()
@@ -55,9 +58,6 @@ class Trainer(object):
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.train_loader
         ):
-            # user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
-            # item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
-            # gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             self.optimizer.zero_grad()
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
@@ -70,7 +70,7 @@ class Trainer(object):
 
     def test_epoch(self):
         self.model.eval()
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and self.use_cuda:
             self.model.cuda()
         else:
             self.model.cpu()
@@ -78,9 +78,6 @@ class Trainer(object):
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.test_loader
         ):
-            # user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
-            # item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
-            # gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
                 torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
@@ -98,6 +95,7 @@ def main():
     parser.add_argument("--num_epoch", type=int, default=500)
     parser.add_argument("--lr", type=float, default=1.0)
     parser.add_argument("--latent_dim", type=int, default=20)
+    parser.add_argument("--use_cuda", type=bool, default=True)
     args = parser.parse_args()
 
     print("Dataset initialization starts")
@@ -128,7 +126,9 @@ def main():
         dataset.get_num_user(), dataset.get_num_item(), args.latent_dim
     )
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr)
-    trainer = Trainer(model, train_loader, args.num_epoch, optimizer, test_loader)
+    trainer = Trainer(
+        model, train_loader, args.num_epoch, optimizer, test_loader, args.use_cuda
+    )
     trainer.train()
 
 
