@@ -47,13 +47,17 @@ class Trainer(object):
 
     def train_epoch(self):
         self.model.train()
+        if torch.cuda.is_available():
+            self.model.cuda()
+        else:
+            self.model.cpu()
         cur_losses = []
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.train_loader
         ):
-            user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
-            item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
-            gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
+            # user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
+            # item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
+            # gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             self.optimizer.zero_grad()
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
@@ -66,13 +70,17 @@ class Trainer(object):
 
     def test_epoch(self):
         self.model.eval()
+        if torch.cuda.is_available():
+            self.model.cuda()
+        else:
+            self.model.cpu()
         cur_losses = []
         for batch_idx, (user_indices, item_indices, gt_ratings) in enumerate(
             self.test_loader
         ):
-            user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
-            item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
-            gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
+            # user_indices = user_indices.to(torch.device("cpu"), dtype=torch.int32)
+            # item_indices = item_indices.to(torch.device("cpu"), dtype=torch.int32)
+            # gt_ratings = gt_ratings.to(torch.device("cpu"), dtype=torch.float32)
             estimate_ratings = self.model(user_indices, item_indices)
             loss = torch.sqrt(
                 torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
