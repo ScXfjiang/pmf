@@ -26,14 +26,12 @@ class Trainer(object):
 
     def train(self):
         for epoch_idx in range(1, self.num_epoch + 1):
-            print("train epoch {}".format(epoch_idx))
             train_epoch_start = time.time()
             self.train_epoch()
             train_epoch_end = time.time()
             show_elapsed_time(
                 train_epoch_start, train_epoch_end, "Train epoch {}".format(epoch_idx)
             )
-            print("test epoch {}".format(epoch_idx))
             test_epoch_start = time.time()
             self.test_epoch()
             test_epoch_end = time.time()
