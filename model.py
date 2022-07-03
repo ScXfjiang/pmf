@@ -14,8 +14,8 @@ class ProbabilisticMatrixFactorization(nn.Module):
         self.init_weight()
 
     def init_weight(self):
-        nn.init.normal_(self.w_user, mean=0.0, std=0.01)
-        nn.init.normal_(self.w_item, mean=0.0, std=0.01)
+        nn.init.normal_(self.w_user, mean=0.0, std=0.1)
+        nn.init.normal_(self.w_item, mean=0.0, std=0.1)
 
     def forward(self, uesr_indices, item_indices):
         user_embeds = torch.index_select(self.w_user, 0, uesr_indices)
