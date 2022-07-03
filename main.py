@@ -65,7 +65,7 @@ class Trainer(object):
             estimate_ratings = torch.sigmoid(self.model(user_indices, item_indices))
             gt_ratings = (gt_ratings.to(torch.float32) - 1) / (self.K - 1)
             mse = torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
-            rmse = loss = torch.sqrt(mse)
+            rmse = torch.sqrt(mse)
             cur_losses.append(rmse)
             rmse.backward()
             self.optimizer.step()
@@ -109,7 +109,7 @@ def main():
 
     print("Dataset initialization starts")
     dataset_init_start = time.time()
-    dataset = Yelp(args.dataset)
+    dataset = MovieLens100K(args.dataset)
     dataset_init_end = time.time()
     show_elapsed_time(dataset_init_start, dataset_init_end, "Dataset initialization")
     print("Dataset initialization ends")
