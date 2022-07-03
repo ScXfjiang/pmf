@@ -1,7 +1,7 @@
 python main.py                                                          \
-    --dataset="/dataset/yelp_dataset"	    	                        \
-    --train_batch_size=1000000                                          \
-    --test_batch_size=5000                                              \
+    --dataset="/dataset/yelp"	    	                                \
+    --train_batch_size=100000                                           \
+    --test_batch_size=10000                                             \
     --shuffle=True                                                      \
     --num_epoch=20                                                      \
     --lr=0.005                                                          \

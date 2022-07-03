@@ -109,7 +109,7 @@ def main():
 
     print("Dataset initialization starts")
     dataset_init_start = time.time()
-    dataset = MovieLens100K(args.dataset)
+    dataset = Yelp(args.dataset)
     dataset_init_end = time.time()
     show_elapsed_time(dataset_init_start, dataset_init_end, "Dataset initialization")
     print("Dataset initialization ends")
