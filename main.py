@@ -13,7 +13,7 @@ from util import show_elapsed_time
 
 class Trainer(object):
     def __init__(
-        self, model, train_loader, num_epoch, optimizer, test_loader, use_cuda
+        self, model, train_loader, num_epoch, optimizer, test_loader, use_cuda, K
     ):
         self.model = model
         self.train_loader = train_loader
@@ -21,6 +21,7 @@ class Trainer(object):
         self.optimizer = optimizer
         self.test_loader = test_loader
         self.use_cuda = use_cuda
+        self.K = K
         self.train_loss_list = []
         self.test_loss_list = []
 
@@ -61,14 +62,12 @@ class Trainer(object):
                 item_indices = item_indices.to(device="cuda")
                 gt_ratings = gt_ratings.to(device="cuda")
             self.optimizer.zero_grad()
-            estimate_ratings = self.model(user_indices, item_indices)
-            loss = torch.sqrt(
-                torch.nn.functional.mse_loss(
-                    estimate_ratings, gt_ratings.to(torch.float32)
-                )
-            )
-            cur_losses.append(loss)
-            loss.backward()
+            estimate_ratings = torch.sigmoid(self.model(user_indices, item_indices))
+            gt_ratings = (gt_ratings.to(torch.float32) - 1) / (self.K - 1)
+            mse = torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
+            rmse = loss = torch.sqrt(mse)
+            cur_losses.append(rmse)
+            rmse.backward()
             self.optimizer.step()
         self.train_loss_list.append(float(sum(cur_losses) / len(cur_losses)))
 
@@ -86,13 +85,11 @@ class Trainer(object):
                 user_indices = user_indices.to(device="cuda")
                 item_indices = item_indices.to(device="cuda")
                 gt_ratings = gt_ratings.to(device="cuda")
-            estimate_ratings = self.model(user_indices, item_indices)
-            loss = torch.sqrt(
-                torch.nn.functional.mse_loss(
-                    estimate_ratings, gt_ratings.to(torch.float32)
-                )
-            )
-            cur_losses.append(loss)
+            estimate_ratings = torch.sigmoid(self.model(user_indices, item_indices))
+            gt_ratings = (gt_ratings.to(torch.float32) - 1) / (self.K - 1)
+            mse = torch.nn.functional.mse_loss(estimate_ratings, gt_ratings)
+            rmse = torch.sqrt(mse)
+            cur_losses.append(rmse)
         self.test_loss_list.append(float(sum(cur_losses) / len(cur_losses)))
 
 
@@ -104,7 +101,9 @@ def main():
     parser.add_argument("--shuffle", type=bool, default=True)
     parser.add_argument("--num_epoch", type=int, default=500)
     parser.add_argument("--lr", type=float, default=1.0)
+    parser.add_argument("--momentum", type=float, default=0.9)
     parser.add_argument("--latent_dim", type=int, default=20)
+    parser.add_argument("--K", type=int, default=5)
     parser.add_argument("--use_cuda", type=bool, default=True)
     args = parser.parse_args()
 
@@ -135,9 +134,15 @@ def main():
     model = ProbabilisticMatrixFactorization(
         dataset.get_num_user(), dataset.get_num_item(), args.latent_dim
     )
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
     trainer = Trainer(
-        model, train_loader, args.num_epoch, optimizer, test_loader, args.use_cuda
+        model,
+        train_loader,
+        args.num_epoch,
+        optimizer,
+        test_loader,
+        args.use_cuda,
+        args.K,
     )
     trainer.train()
 

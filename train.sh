@@ -1,9 +1,11 @@
 python main.py                                                          \
     --dataset="/dataset/yelp_dataset"	    	                        \
-    --train_batch_size=1024                                             \
-    --test_batch_size=1024                                              \
+    --train_batch_size=1000000                                          \
+    --test_batch_size=5000                                              \
     --shuffle=True                                                      \
-    --num_epoch=100                                                     \
-    --lr=1.0                                                            \
-    --latent_dim=20                                                     \
+    --num_epoch=20                                                      \
+    --lr=0.005                                                          \
+    --momentum=0.9                                                      \
+    --latent_dim=30                                                     \
+    --K=5                                                               \
     --use_cuda=True
