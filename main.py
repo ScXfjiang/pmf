@@ -5,6 +5,9 @@ import torch
 import time
 
 from dataset import MovieLens100K
+from dataset import MovieLens1M
+from dataset import MovieLens10M
+from dataset import MovieLens20M
 from dataset import NetflixPrize
 from dataset import Yelp
 from model import ProbabilisticMatrixFactorization
@@ -107,8 +110,18 @@ def main():
     args = parser.parse_args()
 
     print("Dataset initialization starts")
+    if args.dataset.endswith("ml-100k"):
+        Dataset = MovieLens100K
+    elif args.dataset.endswith("ml-1m"):
+        Dataset = MovieLens1M
+    elif args.dataset.endswith("ml-10m"):
+        Dataset = MovieLens10M
+    elif args.dataset.endswith("ml-20m"):
+        Dataset = MovieLens20M
+    else:
+        raise NotImplementedError
     dataset_init_start = time.time()
-    dataset = MovieLens100K(args.dataset)
+    dataset = Dataset(args.dataset)
     dataset_init_end = time.time()
     show_elapsed_time(dataset_init_start, dataset_init_end, "Dataset initialization")
     print("Dataset initialization ends")

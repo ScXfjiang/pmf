@@ -23,26 +23,29 @@ class DatasetInterface(torch.utils.data.Dataset):
         raise NotImplementedError
 
 
-class MovieLens100K(DatasetInterface):
+class MovieLens(DatasetInterface):
     """
     https://grouplens.org/datasets/movielens/
     """
 
     def __init__(self, dataset_path):
-        super(MovieLens100K, self).__init__()
-        self.structured_data = []
-        with open(os.path.join(dataset_path, "u.data")) as f:
-            for line in f:
-                (user_id, item_id, rating, _) = line.split("\t")
-                self.structured_data.append([int(user_id), int(item_id), int(rating)])
-        with open(os.path.join(dataset_path, "u.info")) as f:
-            u_info = f.readlines()
-            self.num_user = int(u_info[0].split(" ")[0])
-            self.num_item = int(u_info[1].split(" ")[0])
+        super(MovieLens, self).__init__()
+        self.structured_data, self.user_ids, self.item_ids = self.build_structured_data(
+            dataset_path
+        )
+        self.user_id2user_idx = {
+            user_id: user_idx for user_idx, user_id in enumerate(self.user_ids)
+        }
+        self.item_id2item_idx = {
+            item_id: item_idx for item_idx, item_id in enumerate(self.item_ids)
+        }
+
+    def build_structured_data(self, dataset_path):
+        raise NotImplementedError
 
     def __getitem__(self, idx):
-        user_idx = self.structured_data[idx][0] - 1
-        item_idx = self.structured_data[idx][1] - 1
+        user_idx = self.user_id2user_idx[self.structured_data[idx][0]]
+        item_idx = self.item_id2item_idx[self.structured_data[idx][1]]
         rating = self.structured_data[idx][2]
         return [user_idx, item_idx, rating]
 
@@ -50,10 +53,96 @@ class MovieLens100K(DatasetInterface):
         return len(self.structured_data)
 
     def get_num_user(self):
-        return self.num_user
+        return len(self.user_ids)
 
     def get_num_item(self):
-        return self.num_item
+        return len(self.item_ids)
+
+
+class MovieLens100K(MovieLens):
+    def build_structured_data(self, dataset_path):
+        structured_data = []
+        with open(os.path.join(dataset_path, "u.data")) as f:
+            user_ids_set = set()
+            item_ids_set = set()
+            for line in f:
+                (user_id, item_id, rating, _) = line.split("\t")
+                user_id = int(user_id)
+                item_id = int(item_id)
+                rating = float(rating)
+                user_ids_set.add(user_id)
+                item_ids_set.add(item_id)
+                structured_data.append([user_id, item_id, rating])
+            user_ids = list(user_ids_set)
+            item_ids = list(item_ids_set)
+
+        return structured_data, user_ids, item_ids
+
+
+class MovieLens1M(MovieLens):
+    def build_structured_data(self, dataset_path):
+        structured_data = []
+        user_ids_set = set()
+        item_ids_set = set()
+        with open(
+            os.path.join(dataset_path, "ratings.dat"), encoding="ISO-8859-1"
+        ) as f:
+            for line in f:
+                (user_id, item_id, rating, _) = line.split("::")
+                user_id = int(user_id)
+                item_id = int(item_id)
+                rating = float(rating)
+                user_ids_set.add(user_id)
+                item_ids_set.add(item_id)
+                structured_data.append([user_id, item_id, rating])
+            user_ids = list(user_ids_set)
+            item_ids = list(item_ids_set)
+
+        return structured_data, user_ids, item_ids
+
+
+class MovieLens10M(MovieLens):
+    def build_structured_data(self, dataset_path):
+        structured_data = []
+        user_ids_set = set()
+        item_ids_set = set()
+        with open(
+            os.path.join(dataset_path, "ratings.dat"), encoding="ISO-8859-1"
+        ) as f:
+            for line in f:
+                (user_id, item_id, rating, _) = line.split("::")
+                user_id = int(user_id)
+                item_id = int(item_id)
+                rating = float(rating)
+                user_ids_set.add(user_id)
+                item_ids_set.add(item_id)
+                structured_data.append([user_id, item_id, rating])
+            user_ids = list(user_ids_set)
+            item_ids = list(item_ids_set)
+
+        return structured_data, user_ids, item_ids
+
+
+class MovieLens20M(MovieLens):
+    def build_structured_data(self, dataset_path):
+        structured_data = []
+        user_ids_set = set()
+        item_ids_set = set()
+        with open(
+            os.path.join(dataset_path, "ratings.dat"), encoding="ISO-8859-1"
+        ) as f:
+            for line in f:
+                (user_id, item_id, rating, _) = line.split("::")
+                user_id = int(user_id)
+                item_id = int(item_id)
+                rating = float(rating)
+                user_ids_set.add(user_id)
+                item_ids_set.add(item_id)
+                structured_data.append([user_id, item_id, rating])
+            user_ids = list(user_ids_set)
+            item_ids = list(item_ids_set)
+
+        return structured_data, user_ids, item_ids
 
 
 class NetflixPrize(DatasetInterface):
@@ -81,7 +170,7 @@ class NetflixPrize(DatasetInterface):
                         if user_id not in self.user_ids:
                             self.user_ids.append(user_id)
                         self.structured_data.append(
-                            [int(user_id), movie_id, int(rating)]
+                            [int(user_id), movie_id, float(rating)]
                         )
         self.user_id2user_idx = {
             user_id: idx for idx, user_id in enumerate(self.user_ids)
@@ -150,7 +239,7 @@ class Yelp(DatasetInterface):
                 for line in f:
                     review_json = json.loads(line)
                     self.review_json_list.append(review_json)
-                    self.stars.append(review_json["stars"])
+                    self.stars.append(float(review_json["stars"]))
                     user_ids_set.add(review_json["user_id"])
                     business_ids_set.add(review_json["business_id"])
             self.user_ids = list(user_ids_set)
@@ -192,7 +281,7 @@ class Yelp(DatasetInterface):
         review_json = self.review_json_list[idx]
         user_idx = self.user_id2user_idx[review_json["user_id"]]
         business_idx = self.business_id2business_idx[review_json["business_id"]]
-        rating = review_json["stars"]
+        rating = float(review_json["stars"])
         return (user_idx, business_idx, rating)
 
     def __len__(self):
