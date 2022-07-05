@@ -127,19 +127,13 @@ class MovieLens10M(MovieLens):
 class MovieLens20M(MovieLens):
     def build_structured_data(self, dataset_path):
         structured_data = []
-        user_ids_set = set()
-        item_ids_set = set()
         df = pd.read_csv(os.path.join(dataset_path, "ratings.csv"))
-        for idx in df.shape[0]:
-            row = df.iloc[idx]
-            user_id = int(row[0])
-            item_id = int(row[1])
-            rating = float(row[2])
-            user_ids_set.add(user_id)
-            item_ids_set.add(item_id)
-            structured_data.append(user_id, item_id, rating )
-        user_ids = list(user_ids_set)
-        item_ids = list(item_ids_set)
+        df = df.drop("timestamp", 1)
+        structured_data = df.values.tolist()
+        user_ids = list(set(df.loc[:, "userId"]))
+        item_ids = list(set(df.loc[:, "movieId"]))
+        print(len(user_ids))
+        print(len(item_ids))
 
         return structured_data, user_ids, item_ids
 
