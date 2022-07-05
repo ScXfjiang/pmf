@@ -1,11 +1,10 @@
 python main.py                                                          \
-    --dataset="/dataset/yelp"	    	                                \
-    --train_batch_size=100000                                           \
-    --test_batch_size=10000                                             \
+    --dataset="/home/people/22200056/workspace/dataset/ml-100k"	        \
+    --train_batch_size=1000                                             \
+    --test_batch_size=1000                                              \
     --shuffle=True                                                      \
-    --num_epoch=20                                                      \
-    --lr=0.005                                                          \
+    --num_epoch=500                                                     \
+    --lr=0.1                                                            \
     --momentum=0.9                                                      \
-    --latent_dim=30                                                     \
-    --K=5                                                               \
+    --latent_dim=10                                                     \
     --use_cuda=True
