@@ -4,6 +4,7 @@ import re
 import torch
 import json
 import pickle as pkl
+import pandas as pd
 
 
 class DatasetInterface(torch.utils.data.Dataset):
@@ -128,19 +129,17 @@ class MovieLens20M(MovieLens):
         structured_data = []
         user_ids_set = set()
         item_ids_set = set()
-        with open(
-            os.path.join(dataset_path, "ratings.dat"), encoding="ISO-8859-1"
-        ) as f:
-            for line in f:
-                (user_id, item_id, rating, _) = line.split("::")
-                user_id = int(user_id)
-                item_id = int(item_id)
-                rating = float(rating)
-                user_ids_set.add(user_id)
-                item_ids_set.add(item_id)
-                structured_data.append([user_id, item_id, rating])
-            user_ids = list(user_ids_set)
-            item_ids = list(item_ids_set)
+        df = pd.read_csv(os.path.join(dataset_path, "ratings.csv"))
+        for idx in df.shape[0]:
+            row = df.iloc[idx]
+            user_id = int(row[0])
+            item_id = int(row[1])
+            rating = float(row[2])
+            user_ids_set.add(user_id)
+            item_ids_set.add(item_id)
+            structured_data.append(user_id, item_id, rating )
+        user_ids = list(user_ids_set)
+        item_ids = list(item_ids_set)
 
         return structured_data, user_ids, item_ids
 
