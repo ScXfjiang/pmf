@@ -1,5 +1,5 @@
 python main.py                                                          \
-    --dataset="/home/people/22200056/workspace/dataset/ml-10m"	        \
+    --dataset="/home/people/22200056/workspace/dataset/ml-20m"	        \
     --train_batch_size=1000                                             \
     --test_batch_size=1000                                              \
     --shuffle=True                                                      \
