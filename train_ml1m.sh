@@ -1,11 +1,11 @@
 python main.py                                                          \
-    --dataset="/dataset/ml-100k"	                                    \
+    --dataset="/dataset/ml-1m"	                                        \
     --train_batch_size=1024                                             \
     --test_batch_size=1024                                              \
     --shuffle=True                                                      \
-    --num_epoch=500                                                     \
+    --num_epoch=200                                                     \
     --lr=0.1                                                            \
     --momentum=0.9                                                      \
     --weight_decay=1e-4                                                 \
-    --latent_dim=10                                                     \
+    --latent_dim=15                                                     \
     --use_cuda=True

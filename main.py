@@ -105,6 +105,7 @@ def main():
     parser.add_argument("--num_epoch", type=int, default=500)
     parser.add_argument("--lr", type=float, default=1.0)
     parser.add_argument("--momentum", type=float, default=0.9)
+    parser.add_argument("--weight_decay", type=float, default=1e-4)
     parser.add_argument("--latent_dim", type=int, default=20)
     parser.add_argument("--use_cuda", type=bool, default=True)
     args = parser.parse_args()
@@ -147,7 +148,10 @@ def main():
         dataset.get_num_user(), dataset.get_num_item(), args.latent_dim
     )
     optimizer = torch.optim.SGD(
-        model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=1e-4
+        model.parameters(),
+        lr=args.lr,
+        momentum=args.momentum,
+        weight_decay=args.weight_decay,
     )
     trainer = Trainer(
         model, train_loader, args.num_epoch, optimizer, test_loader, args.use_cuda,
