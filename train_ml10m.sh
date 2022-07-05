@@ -1,0 +1,11 @@
+python main.py                                                          \
+    --dataset="/dataset/ml-10m"	                                        \
+    --train_batch_size=8096                                             \
+    --test_batch_size=8096                                              \
+    --shuffle=True                                                      \
+    --num_epoch=20                                                      \
+    --lr=0.1                                                            \
+    --momentum=0.9                                                      \
+    --weight_decay=1e-4                                                 \
+    --latent_dim=30                                                     \
+    --use_cuda=True
