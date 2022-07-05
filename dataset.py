@@ -132,8 +132,6 @@ class MovieLens20M(MovieLens):
         structured_data = df.values.tolist()
         user_ids = list(set(df.loc[:, "userId"]))
         item_ids = list(set(df.loc[:, "movieId"]))
-        print(len(user_ids))
-        print(len(item_ids))
 
         return structured_data, user_ids, item_ids
 
