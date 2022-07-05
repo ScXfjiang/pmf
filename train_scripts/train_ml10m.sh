@@ -1,4 +1,4 @@
-python main.py                                                          \
+python ../main.py                                                       \
     --dataset="/dataset/ml-10m"	                                        \
     --train_batch_size=8096                                             \
     --test_batch_size=8096                                              \
