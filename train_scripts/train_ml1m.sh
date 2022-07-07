@@ -10,4 +10,4 @@ python ../main.py                                                       \
     --momentum=0.9                                                      \
     --weight_decay=1e-4                                                 \
     --latent_dim=15                                                     \
-    --use_cuda=True > stdout.txt 2> stderr.txt
+    --use_cuda=True > stdout_train_ml1m.txt 2> stderr_train_ml1m.txt
