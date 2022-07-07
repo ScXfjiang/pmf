@@ -41,12 +41,12 @@ momentum = 0.9
 weight_decay = 1e-4
 
 ![ml1m](https://user-images.githubusercontent.com/13879402/177429312-a794f91c-41d4-4a92-bd67-b69df0872207.png)
-### MovieLens10M（无明显收敛趋势）
+### MovieLens10M（有收敛趋势，但未接近1，尝试调参）
 latent feature dim = 30
 
 batch size = 8096
 
-number of epoch = 20
+number of epoch = 800
 
 learning rate = 0.1
 
@@ -56,20 +56,7 @@ momentum = 0.9
 
 weight_decay = 1e-4
 
-![ml10m](https://user-images.githubusercontent.com/13879402/177429427-004a94e3-415c-4df5-bac1-a1d4f14a620b.png)
-### MovieLens20M（无明显收敛趋势）
-latent feature dim = 30
+<img width="500" alt="Screen Shot 2022-07-07 at 12 37 02 PM" src="https://user-images.githubusercontent.com/13879402/177764597-16a15d1a-b21f-4d87-a8d2-4b53d5e356a8.png">
 
-batch size = 20000
+### MovieLens20M（未做多个epoch验证，根据20个epoch的经验，结果与MovieLnes10M接近）
 
-number of epoch = 20
-
-learning rate = 0.1
-
-optimizer = SGD
-
-momentum = 0.9
-
-weight_decay = 1e-4
-
-![ml20m](https://user-images.githubusercontent.com/13879402/177429517-0e3c1c36-4e42-48f5-a1e7-324e0b38c7ff.png)
