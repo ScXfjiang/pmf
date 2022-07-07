@@ -57,6 +57,7 @@ momentum = 0.9
 weight_decay = 1e-4
 
 <img width="500" alt="Screen Shot 2022-07-07 at 12 37 02 PM" src="https://user-images.githubusercontent.com/13879402/177764597-16a15d1a-b21f-4d87-a8d2-4b53d5e356a8.png">
+忽略这里的多条曲线
 
 ### MovieLens20M（未做多个epoch验证，根据20个epoch的经验，结果与MovieLnes10M接近）
 
