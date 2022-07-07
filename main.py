@@ -42,14 +42,6 @@ class Trainer(object):
                 test_epoch_start, test_epoch_end, "Test epoch {}".format(epoch_idx)
             )
 
-            if epoch_idx % 10 == 0:
-                plt.plot(self.train_loss_list, label="train", linewidth=1)
-                plt.plot(self.test_loss_list, label="test", linewidth=1)
-                plt.legend(loc="upper right")
-                plt.xlabel("num of epoch")
-                plt.ylabel("RMSE")
-                plt.grid()
-                plt.savefig("rmse_curve_{}.pdf".format(epoch_idx))
 
         plt.plot(self.train_loss_list, label="train", linewidth=1)
         plt.plot(self.test_loss_list, label="test", linewidth=1)
@@ -57,7 +49,7 @@ class Trainer(object):
         plt.xlabel("num of epoch")
         plt.ylabel("RMSE")
         plt.grid()
-        plt.savefig("rmse_curve_final.pdf")
+        plt.savefig("rmse_curve.pdf")
 
     def train_epoch(self):
         self.model.train()
