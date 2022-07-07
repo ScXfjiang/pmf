@@ -1,9 +1,9 @@
 python ../main.py                                                       \
-    --dataset="/dataset/ml-10m"	                                        \
+    --dataset="/home/people/22200056/workspace/dataset/ml-10m"          \
     --train_batch_size=8096                                             \
     --test_batch_size=8096                                              \
     --shuffle=True                                                      \
-    --num_epoch=20                                                      \
+    --num_epoch=500                                                     \
     --lr=0.1                                                            \
     --momentum=0.9                                                      \
     --weight_decay=1e-4                                                 \
