@@ -5,7 +5,7 @@ python ../main.py                                                       \
     --train_batch_size=20000                                            \
     --test_batch_size=20000                                             \
     --shuffle=True                                                      \
-    --num_epoch=20                                                      \
+    --num_epoch=500                                                     \
     --lr=0.1                                                            \
     --momentum=0.9                                                      \
     --weight_decay=1e-4                                                 \
