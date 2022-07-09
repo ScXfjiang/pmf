@@ -58,5 +58,19 @@ weight_decay = 1e-4
 
 ![ml10m](https://user-images.githubusercontent.com/13879402/178045191-9aa9ab97-bf5b-4c68-931f-5352e9ff99f4.png)
 
-### MovieLens20M（TODO）
+### MovieLens20M（收敛性更差）
+latent feature dim = 30
 
+batch size = 20000
+
+number of epoch = 500
+
+learning rate = 0.1
+
+optimizer = SGD
+
+momentum = 0.9
+
+weight_decay = 1e-4
+
+![rmse_curve](https://user-images.githubusercontent.com/13879402/178113855-ae5e632b-add7-460d-a2bc-77ac10c1be21.png)
