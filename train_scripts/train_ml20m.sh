@@ -1,9 +1,9 @@
 #!/bin/bash -l
 cd $SLURM_SUBMIT_DIR
 python ../main.py                                                       \
-    --dataset="/dataset/ml-20m"	                                        \
-    --train_batch_size=20000                                            \
-    --test_batch_size=20000                                             \
+    --dataset="/home/people/22200056/workspace/dataset/ml-20m"          \
+    --train_batch_size=8096                                             \
+    --test_batch_size=8096                                              \
     --shuffle=True                                                      \
     --num_epoch=500                                                     \
     --lr=0.1                                                            \

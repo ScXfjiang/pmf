@@ -1,7 +1,7 @@
 #!/bin/bash -l
 cd $SLURM_SUBMIT_DIR
 python ../main.py                                                       \
-    --dataset="/dataset/ml-1m"	                                        \
+    --dataset="/home/people/22200056/workspace/dataset/ml-1m"           \
     --train_batch_size=1024                                             \
     --test_batch_size=1024                                              \
     --shuffle=True                                                      \
