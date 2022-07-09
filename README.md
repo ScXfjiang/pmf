@@ -41,7 +41,7 @@ momentum = 0.9
 weight_decay = 1e-4
 
 ![ml1m](https://user-images.githubusercontent.com/13879402/177429312-a794f91c-41d4-4a92-bd67-b69df0872207.png)
-### MovieLens10M（有收敛趋势，但未接近1，尝试调参）
+### MovieLens10M（有收敛趋势，但未接近1，后面尝试调参）
 latent feature dim = 30
 
 batch size = 8096
@@ -56,8 +56,21 @@ momentum = 0.9
 
 weight_decay = 1e-4
 
-<img width="500" alt="Screen Shot 2022-07-07 at 12 37 02 PM" src="https://user-images.githubusercontent.com/13879402/177764597-16a15d1a-b21f-4d87-a8d2-4b53d5e356a8.png">
-忽略这里的多条曲线
+![ml10m](https://user-images.githubusercontent.com/13879402/178045191-9aa9ab97-bf5b-4c68-931f-5352e9ff99f4.png)
 
-### MovieLens20M（未做多个epoch验证，根据20个epoch的经验，结果与MovieLnes10M接近）
+### MovieLens20M（收敛性更差）
+latent feature dim = 30
 
+batch size = 20000
+
+number of epoch = 500
+
+learning rate = 0.1
+
+optimizer = SGD
+
+momentum = 0.9
+
+weight_decay = 1e-4
+
+![rmse_curve](https://user-images.githubusercontent.com/13879402/178113855-ae5e632b-add7-460d-a2bc-77ac10c1be21.png)
