@@ -58,7 +58,7 @@ weight_decay = 1e-4
 
 ![ml10m](https://user-images.githubusercontent.com/13879402/178045191-9aa9ab97-bf5b-4c68-931f-5352e9ff99f4.png)
 
-### MovieLens20M（收敛性更差）
+### MovieLens20M（不收敛）
 
 latent feature dim = 30
 
